@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to PNG Converter | Tiny Apps</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-1: #667eea;
+            --accent-2: #764ba2;
+            --accent-3: #f093fb;
+            --border: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 50%, var(--bg-primary) 100%);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--accent-1);
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 150px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview-container {
+            border: 2px dashed var(--accent-1);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(102, 126, 234, 0.05);
+            overflow: hidden;
+        }
+
+        .preview-container svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #conversion-canvas {
+            display: none;
+        }
+
+        .message-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .message-box.show {
+            display: block;
+        }
+
+        .message-success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left-color: #22c55e;
+            color: #86efac;
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .counter {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--accent-1);
+        }
+
+        .url-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .url-section p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 SVG to PNG Converter</h1>
+            <p class="subtitle">Convert SVG code to high-quality PNG images</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h2>SVG Input</h2>
+
+                <div class="url-section">
+                    <label>Load from URL</label>
+                    <input type="text" id="svg-url" placeholder="https://example.com/image.svg" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; margin-bottom: 10px;">
+                    <button id="load-url-button" class="button" style="margin-bottom: 10px;">Load from URL</button>
+                    <p>⚠️ Note: CORS restrictions may prevent loading from some URLs</p>
+                </div>
+
+                <div class="field-group">
+                    <label>Paste SVG Code</label>
+                    <textarea id="svg-input" placeholder="&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;...&lt;/svg&gt;"></textarea>
+                </div>
+
+                <button id="convert-button" class="button">Convert & Download</button>
+                <div class="counter">
+                    <span id="conversion-counter">Conversions: 0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Live Preview</h2>
+                <div class="preview-container" id="svg-preview">
+                    <p style="color: var(--text-secondary);">Preview will appear here...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <canvas id="conversion-canvas"></canvas>
+
+    <script>
+        const svgInput = document.getElementById('svg-input');
+        const svgPreview = document.getElementById('svg-preview');
+        const convertButton = document.getElementById('convert-button');
+        const messageBox = document.getElementById('message-box');
+        const canvas = document.getElementById('conversion-canvas');
+        const counterDisplay = document.getElementById('conversion-counter');
+        let conversionCount = 0;
+
+        const showMessage = (text, type = 'success') => {
+            messageBox.textContent = text;
+            messageBox.classList.remove('message-success', 'message-error');
+            messageBox.classList.add(type === 'success' ? 'message-success' : 'message-error', 'show');
+            setTimeout(() => messageBox.classList.remove('show'), 3000);
+        };
+
+        svgInput.addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                svgPreview.innerHTML = e.target.value;
+            } else {
+                svgPreview.innerHTML = '<p style="color: var(--text-secondary);">Preview will appear here...</p>';
+            }
+        });
+
+        document.getElementById('load-url-button').addEventListener('click', async () => {
+            const url = document.getElementById('svg-url').value.trim();
+            if (!url) {
+                showMessage('Please enter a URL', 'error');
+                return;
+            }
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const svg = await response.text();
+                svgInput.value = svg;
+                svgPreview.innerHTML = svg;
+                showMessage('SVG loaded successfully!', 'success');
+            } catch (error) {
+                showMessage('Error loading SVG: ' + error.message, 'error');
+            }
+        });
+
+        convertButton.addEventListener('click', () => {
+            const svgString = svgInput.value.trim();
+            if (!svgString) {
+                showMessage('Please paste SVG code first', 'error');
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                const svgDoc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+                const svgElement = svgDoc.documentElement;
+                const width = parseInt(svgElement.getAttribute('width')) || img.naturalWidth || 500;
+                const height = parseInt(svgElement.getAttribute('height')) || img.naturalHeight || 500;
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `svg-to-png-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showMessage('Image converted and downloaded!', 'success');
+                conversionCount++;
+                counterDisplay.textContent = `Conversions: ${conversionCount}`;
+            };
+
+            img.onerror = () => showMessage('Invalid SVG code', 'error');
+            const blob = new Blob([svgString], { type: 'image/svg+xml' });
+            img.src = URL.createObjectURL(blob);
+        });
+    </script>
+</body>
+</html>

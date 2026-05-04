@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Image Maker | Tiny Apps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-1: #667eea;
+            --accent-2: #764ba2;
+            --accent-3: #f093fb;
+            --border: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Montserrat, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 50%, var(--bg-primary) 100%);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--accent-1);
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="color"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            min-height: 70px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .preview {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-wrap {
+            border: 2px dashed var(--accent-1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(102, 126, 234, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .controls h2 {
+            margin-bottom: 20px;
+            color: var(--accent-1);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid var(--accent-1);
+            color: var(--accent-1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Quote Image Maker</h1>
+            <p class="subtitle">Create beautiful quote cards for social media</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="card controls">
+                <h2>Quote Image Maker <span class="badge">Client-Side</span></h2>
+
+                <div class="row">
+                    <div class="field-group">
+                        <label>Canvas Size</label>
+                        <select id="size">
+                            <option value="post">FB Post (1080×1080)</option>
+                            <option value="cover">FB Cover (820×312)</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Background</label>
+                        <select id="bg">
+                            <option value="gradient-aurora">Aurora Gradient</option>
+                            <option value="gradient-sunset">Sunset Gradient</option>
+                            <option value="gradient-midnight">Midnight Gradient</option>
+                            <option value="custom">Custom Upload</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>Upload Custom BG (Optional)</label>
+                    <input type="file" id="upload" accept="image/*">
+                </div>
+
+                <div class="field-group">
+                    <label>Your Quote</label>
+                    <textarea id="text" placeholder="Type your quote here..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="field-group">
+                        <label>Font</label>
+                        <select id="font">
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Roboto Slab">Roboto Slab</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Font Size</label>
+                        <input type="range" id="sizePx" min="16" max="160" value="64">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="field-group">
+                        <label>Text Color</label>
+                        <input type="color" id="color" value="#ffffff">
+                    </div>
+                    <div class="field-group">
+                        <label>Alignment</label>
+                        <select id="align">
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="btnDownload" class="button">⬇️ Download PNG</button>
+                <button id="btnReset" class="button" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); margin-top: 8px;">Reset</button>
+            </div>
+
+            <div class="card preview">
+                <div class="canvas-wrap">
+                    <canvas id="c" width="1080" height="1080"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = s => document.querySelector(s);
+        const canvas = $('#c');
+        const ctx = canvas.getContext('2d');
+
+        const state = {
+            w: 1080, h: 1080,
+            bg: { type: 'gradient-aurora', img: null },
+            text: '',
+            font: 'Montserrat',
+            size: 64,
+            color: '#ffffff',
+            align: 'left',
+            x: 100,
+            y: 150
+        };
+
+        function createGradient(type, w, h) {
+            if (type === 'gradient-aurora') {
+                const g = ctx.createLinearGradient(0, 0, w, h);
+                g.addColorStop(0, '#0e1a5a');
+                g.addColorStop(.5, '#3b59ff');
+                g.addColorStop(1, '#9f78ff');
+                return g;
+            } else if (type === 'gradient-sunset') {
+                const g = ctx.createLinearGradient(0, 0, 0, h);
+                g.addColorStop(0, '#ff9966');
+                g.addColorStop(1, '#662d8c');
+                return g;
+            } else {
+                const g = ctx.createRadialGradient(w * .7, h * .3, h * .1, w * .5, h * .5, Math.max(w, h));
+                g.addColorStop(0, '#0b102c');
+                g.addColorStop(1, '#000');
+                return g;
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, state.w, state.h);
+
+            if (state.bg.type.startsWith('gradient-')) {
+                ctx.fillStyle = createGradient(state.bg.type, state.w, state.h);
+                ctx.fillRect(0, 0, state.w, state.h);
+            } else if (state.bg.img) {
+                const img = state.bg.img;
+                const cw = state.w, ch = state.h, ir = img.width / img.height;
+                let dw = cw, dh = dw / ir;
+                if (dh < ch) { dh = ch; dw = dh * ir; }
+                const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            }
+
+            ctx.font = `${state.size}px "${state.font}", system-ui`;
+            ctx.textAlign = state.align;
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = state.color;
+            ctx.shadowColor = 'rgba(0,0,0,.5)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
+
+            const words = (state.text || '').split(/\s+/);
+            const lines = [];
+            let line = '';
+            const maxW = state.w - 80;
+
+            for (const w of words) {
+                const tryLine = line ? line + ' ' + w : w;
+                if (ctx.measureText(tryLine).width <= maxW) {
+                    line = tryLine;
+                } else {
+                    if (line) lines.push(line);
+                    line = w;
+                }
+            }
+            if (line) lines.push(line);
+
+            const lineH = state.size * 1.25;
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], state.x, state.y + i * lineH);
+            }
+        }
+
+        $('#size').addEventListener('change', e => {
+            if (e.target.value === 'post') {
+                state.w = state.h = 1080;
+                canvas.width = canvas.height = 1080;
+                state.x = 100; state.y = 150;
+            } else {
+                state.w = 820; state.h = 312;
+                canvas.width = 820; canvas.height = 312;
+                state.x = 80; state.y = 80;
+            }
+            render();
+        });
+
+        $('#bg').addEventListener('change', e => {
+            state.bg.type = e.target.value;
+            if (e.target.value !== 'custom') state.bg.img = null;
+            render();
+        });
+
+        $('#upload').addEventListener('change', e => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                state.bg = { type: 'custom', img };
+                URL.revokeObjectURL(url);
+                render();
+            };
+            img.src = url;
+        });
+
+        $('#text').addEventListener('input', e => {
+            state.text = e.target.value;
+            render();
+        });
+
+        $('#font').addEventListener('change', e => {
+            state.font = e.target.value;
+            render();
+        });
+
+        $('#sizePx').addEventListener('input', e => {
+            state.size = parseInt(e.target.value);
+            render();
+        });
+
+        $('#color').addEventListener('input', e => {
+            state.color = e.target.value;
+            render();
+        });
+
+        $('#align').addEventListener('change', e => {
+            state.align = e.target.value;
+            render();
+        });
+
+        $('#btnDownload').addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = `quote-${new Date().toISOString().split('T')[0]}.png`;
+            a.click();
+        });
+
+        $('#btnReset').addEventListener('click', () => location.reload());
+
+        render();
+    </script>
+</body>
+</html>

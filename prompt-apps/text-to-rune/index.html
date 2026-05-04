@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Rune Converter | Tiny Apps</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-1: #667eea;
+            --accent-2: #764ba2;
+            --accent-3: #f093fb;
+            --border: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 50%, var(--bg-primary) 100%);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--accent-1);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .button {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .button.full-width {
+            width: 100%;
+            padding: 14px;
+        }
+
+        .output-container {
+            background: rgba(102, 126, 234, 0.05);
+            border: 2px dashed var(--accent-1);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #output {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent-3);
+            word-break: break-all;
+            line-height: 1.8;
+            letter-spacing: 2px;
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+            z-index: 100;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid var(--accent-1);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--accent-1);
+        }
+
+        p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-preset {
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid var(--accent-1);
+            color: var(--accent-1);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-preset:hover {
+            background: rgba(102, 126, 234, 0.25);
+        }
+
+        @media (max-width: 600px) {
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            #output {
+                font-size: 1.8rem;
+            }
+
+            .toast {
+                right: 15px;
+                bottom: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ᚱ Text to Rune Converter</h1>
+            <p class="subtitle">Convert English text to Elder Futhark runes</p>
+        </header>
+
+        <div class="card">
+            <h2>Enter Your Text</h2>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="text" id="inputText" placeholder="Type something... e.g., HELLO, MAGIC, RUNES" spellcheck="false">
+                    <button class="button" id="convertButton">Convert</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="quick-preset" onclick="convert('HELLO')">HELLO</button>
+                <button class="quick-preset" onclick="convert('MAGIC')">MAGIC</button>
+                <button class="quick-preset" onclick="convert('RUNES')">RUNES</button>
+                <button class="quick-preset" onclick="convert('ANCIENT')">ANCIENT</button>
+            </div>
+
+            <h2 style="margin-top: 30px;">Your Runes</h2>
+            <div class="output-container">
+                <div id="output">Your runes will appear here...</div>
+            </div>
+
+            <button class="copy-button full-width" onclick="copyToClipboard()">📋 Copy Runes</button>
+
+            <div class="info-box">
+                <p><strong>Elder Futhark Guide:</strong> This converter maps English letters to corresponding rune symbols. Each letter is converted to its Elder Futhark equivalent (A→ᚨ, B→ᛒ, etc.). Uppercase and lowercase are treated the same.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const runeMapping = {
+            'A': '\u16A8', 'B': '\u16D2', 'C': '\u16B2', 'D': '\u16DE', 'E': '\u16D6',
+            'F': '\u16A0', 'G': '\u16B7', 'H': '\u16BA', 'I': '\u16C1', 'J': '\u16C3',
+            'K': '\u16B2', 'L': '\u16DA', 'M': '\u16D7', 'N': '\u16BE', 'O': '\u16DF',
+            'P': '\u16C8', 'Q': '\u16B2', 'R': '\u16B1', 'S': '\u16CA', 'T': '\u16CF',
+            'U': '\u16A2', 'V': '\u16B9', 'W': '\u16B9', 'X': '\u16C9', 'Y': '\u16C7',
+            'Z': '\u16C9',
+            '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6',
+            '7': '7', '8': '8', '9': '9', ' ': ' '
+        };
+
+        const inputText = document.getElementById('inputText');
+        const output = document.getElementById('output');
+        const convertButton = document.getElementById('convertButton');
+
+        function convert(text = null) {
+            const input = (text || inputText.value).toUpperCase();
+            const runes = input.split('').map(char => runeMapping[char] || char).join('');
+            output.textContent = runes || 'Your runes will appear here...';
+        }
+
+        convertButton.addEventListener('click', () => convert());
+
+        inputText.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') convert();
+        });
+
+        inputText.addEventListener('input', () => convert());
+
+        function copyToClipboard() {
+            const text = output.textContent;
+            if (text === 'Your runes will appear here...') {
+                showToast('⚠️ Please enter text first');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✓ Runes copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+    </script>
+</body>
+</html>

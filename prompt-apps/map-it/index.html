@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aria's Map Forge | AI Prompt Generator</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.1);
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --black-alpha: rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            min-height: 100-vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-accent { color: var(--accent); }
+        .text-muted { color: var(--text-muted); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+            }
+            .controls-section { grid-column: span 7; }
+            .output-section { grid-column: span 5; }
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .value-text {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-family: monospace;
+        }
+
+        /* Custom Range Slider */
+        input[type="range"] {
+            width: 100%;
+            height: 0.5rem;
+            background: var(--slate-700);
+            border-radius: 0.5rem;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 1.1rem;
+            height: 1.1rem;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid white;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .style-btn {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--slate-700);
+            background: var(--slate-800);
+            color: var(--text-main);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .style-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .style-btn.active {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .output-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: 100%;
+        }
+
+        .prompt-box {
+            background: var(--black-alpha);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border: 1px solid var(--slate-800);
+            font-family: monospace;
+            flex-grow: 1;
+            min-height: 150px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            background: #0284c7;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover { background: var(--accent-hover); }
+        .copy-btn:active { transform: scale(0.98); }
+
+        #statusMsg {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .msg-info { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+
+        /* Gallery */
+        .gallery-section { margin-top: 3rem; }
+        .gallery-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .gallery-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .gallery-card {
+            background: var(--slate-800);
+            aspect-ratio: 1 / 1;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 1px solid var(--border);
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+        }
+
+        .gallery-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .placeholder-text {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate-700);
+            font-size: 0.75rem;
+        }
+		.gallery-tag a{padding:.4em 1em .4em;font-size:12px;text-transform:uppercase;margin:0 auto;border-radius:22px;border:1px solid #F0C;color:#fff;background-color:rgba(0,0,0,.5);text-decoration:none;opacity:.6;}.gallery-tag a:hover{opacity:1;}
+		.gallery-info{display:block;margin:0 auto 10px auto;font-size:14px;color:#a6dbf2;}
+		.moregallery{display:flex;max-width:90%;gap:10px;justify-content:center;padding:1em;box-sizing:border-box;}
+		.moregallery a{flex:1;padding:0;text-decoration:none;text-align:center;background-color:rgba(0,0,0,.1);box-shadow:inset 0 0 4px #a6dbf2;color:#a6dbf2;border-radius:8px;}.moregallery a img{display:block;width:100%;height:270px;object-fit:cover;margin:0 auto 10px auto;opacity:.6;transition: margin .3s ease-in-out, opacity .3s ease-in-out;}.moregallery a:hover img{margin:-5px auto 15px auto;opacity:1;}.moregallery a span{display:block;width:100%;margin:0 auto;padding:1em 0 1em;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Map Forge <span class="text-accent">AI</span></h1>
+            <p class="text-muted">Generate professional game map prompts with precision.</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="glass-panel">
+                    <h2 class="section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-accent"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        Terrain Configuration
+                    </h2>
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="label-text">Water Coverage</label>
+                            <span id="waterVal" class="value-text">50%</span>
+                        </div>
+                        <input type="range" id="water" min="0" max="100" value="50">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="label-text">Land Mass</label>
+                            <span id="landVal" class="value-text">50%</span>
+                        </div>
+                        <input type="range" id="land" min="0" max="100" value="50">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="label-text">Mountain Density</label>
+                            <span id="mountainsVal" class="value-text">50%</span>
+                        </div>
+                        <input type="range" id="mountains" min="0" max="100" value="50">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="label-text">Forest Density</label>
+                            <span id="forestVal" class="value-text">50%</span>
+                        </div>
+                        <input type="range" id="forest" min="0" max="100" value="50">
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <label class="label-text">Map Art Style</label>
+                        <div class="style-grid" id="styleGrid">
+                            <button data-style="Isometric 3D High Poly" class="style-btn">Isometric 3D</button>
+                            <button data-style="Ancient weathered papyrus parchment" class="style-btn">Ancient Papyrus</button>
+                            <button data-style="Old sailor nautical navigation map, vintage ink" class="style-btn">Old Sailor</button>
+                            <button data-style="Digital holographic sci-fi map, neon glowing UI" class="style-btn">Digital/Holo</button>
+                            <button data-style="Pencil sketch fantasy world map, hand-drawn" class="style-btn">Hand-Drawn</button>
+                            <button data-style="Top-down 16-bit JRPG pixel art map" class="style-btn">Pixel Art</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Output Section -->
+            <section class="output-section">
+                <div class="glass-panel" style="height: 100%;">
+                    <div class="output-container">
+                        <h2 class="section-title text-accent">Generated Prompt</h2>
+                        <div id="promptOutput" class="prompt-box">
+                            Select a style to begin...
+                        </div>
+                        <button id="copyBtn" class="copy-btn">
+                            Copy Prompt
+                        </button>
+                    </div>
+                </div>
+                <div id="statusMsg"></div>
+            </section>
+        </div>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <h2 class="gallery-title">Inspiration Gallery</h2>
+            <p class="gallery-info">Generated using Gemini Ai. Select predefined prompt and see how it looks</p>
+            <div class="gallery-grid" id="gallery">
+                <div class="gallery-card" onclick="loadFromGallery('isometric')">
+                    <div class="placeholder-text"><img src="images/gemeni-map-isomentric-1.png"/></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-tag text-accent">Isometric - <a href="images/gemeni-map-isomentric-1.png" target="_blank">Full Image</a></span>
+                    </div>
+                </div>
+
+                <div class="gallery-card" onclick="loadFromGallery('ancient')">
+                    <div class="placeholder-text"><img src="images/gemeni-map.png"/></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-tag" style="color: #f59e0b;">Ancient - <a href="images/gemeni-map.png" target="_blank">Full Image</a></span>
+                    </div>
+                </div>
+
+                <div class="gallery-card" onclick="loadFromGallery('holo')">
+                    <div class="placeholder-text"><img src="images/gemeni-map-futuristic-1.png"/></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-tag" style="color: #ec4899;">Futuristic - <a href="images/gemeni-map-futuristic-1.png" target="_blank">Full Image</a></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        
+   <section class="gallery-section">
+   
+            <h2 class="gallery-title">Other Maps</h2>
+            <p class="gallery-info">Tested with various Ai services</p>
+            
+           <div class="moregallery">
+            <a href="images/copilot-pixel-1.png" target="_blank">
+            <img src="images/copilot-pixel-1.png" alt="Copilot - Pixel"/>
+            <span>Copilot Ai - Pixel</span>
+            </a>
+            
+            <a href="images/grok-map-pixel-1.jpg" target="_blank">
+            <img src="images/grok-map-pixel-1.jpg" alt="Grok - Pixel"/>
+            <span>Grok Ai - Pixel</span>
+            </a>
+            
+            <a href="images/shapes-map-pixel-1.png" target="_blank">
+            <img src="images/shapes-map-pixel-1.png" alt="Shapes.inc - Pixel"/>
+            <span>Shapes.inc - Pixel</span>
+            </a>
+            
+            <a href="images/gentube-map-pixel-1.png" target="_blank">
+            <img src="images/gentube-map-pixel-1.jpeg" alt="Gentube.App - Pixel"/>
+            <span>GenTube.app - Pixel</span>
+            </a>
+            
+            
+           </div>
+            
+   
+        
+        
+ </section>      
+        
+    </div>
+
+    <script>
+        const styles = document.querySelectorAll('.style-btn');
+        const sliders = {
+            water: document.getElementById('water'),
+            land: document.getElementById('land'),
+            mountains: document.getElementById('mountains'),
+            forest: document.getElementById('forest')
+        };
+        const displays = {
+            water: document.getElementById('waterVal'),
+            land: document.getElementById('landVal'),
+            mountains: document.getElementById('mountainsVal'),
+            forest: document.getElementById('forestVal')
+        };
+        const output = document.getElementById('promptOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const statusMsg = document.getElementById('statusMsg');
+
+        let currentStyle = "Isometric 3D High Poly";
+
+        function getIntensity(val) {
+            const v = parseInt(val);
+            if (v < 20) return "minimal";
+            if (v < 40) return "scattered";
+            if (v < 65) return "significant";
+            if (v < 85) return "vast";
+            return "dominant";
+        }
+
+        function generatePrompt() {
+            const w = getIntensity(sliders.water.value);
+            const l = getIntensity(sliders.land.value);
+            const m = getIntensity(sliders.mountains.value);
+            const f = getIntensity(sliders.forest.value);
+
+            const prompt = `A highly detailed game map, style: ${currentStyle}. The geography features ${l} landmasses surrounded by ${w} bodies of water. The terrain is characterized by ${m} mountain ranges and ${f} forested regions. Cinematic lighting, 8k resolution, sharp detail, professional cartography.`;
+            
+            output.innerText = prompt;
+        }
+
+        Object.keys(sliders).forEach(key => {
+            sliders[key].addEventListener('input', (e) => {
+                displays[key].innerText = e.target.value + "%";
+                generatePrompt();
+            });
+        });
+
+        styles.forEach(btn => {
+            btn.addEventListener('click', () => {
+                styles.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentStyle = btn.getAttribute('data-style');
+                generatePrompt();
+            });
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = output.innerText;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            statusMsg.innerText = "Prompt Copied to Clipboard!";
+            statusMsg.style.display = 'block';
+            statusMsg.className = 'msg-success';
+            
+            setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
+        });
+
+        function loadFromGallery(presetId) {
+            let settings = {};
+
+            switch(presetId) {
+                case 'isometric':
+                    settings = { water: 30, land: 70, mountains: 40, forest: 80, style: "Isometric 3D High Poly" };
+                    break;
+                case 'ancient':
+                    settings = { water: 80, land: 20, mountains: 15, forest: 10, style: "Ancient weathered papyrus parchment" };
+                    break;
+                case 'holo':
+                    settings = { water: 10, land: 90, mountains: 60, forest: 5, style: "Digital holographic sci-fi map, neon glowing UI" };
+                    break;
+            }
+
+            if (settings.style) {
+                sliders.water.value = settings.water;
+                sliders.land.value = settings.land;
+                sliders.mountains.value = settings.mountains;
+                sliders.forest.value = settings.forest;
+                
+                Object.keys(displays).forEach(key => {
+                    displays[key].innerText = settings[key] + "%";
+                });
+
+                currentStyle = settings.style;
+                
+                styles.forEach(btn => {
+                    if (btn.getAttribute('data-style') === settings.style) {
+                        btn.click();
+                    }
+                });
+
+                generatePrompt();
+                
+                statusMsg.innerText = "Settings synced from gallery!";
+                statusMsg.style.display = 'block';
+                statusMsg.className = 'msg-info';
+                setTimeout(() => { statusMsg.style.display = 'none'; }, 2000);
+            }
+        }
+
+        styles[0].click();
+    </script>
+</body>
+</html>

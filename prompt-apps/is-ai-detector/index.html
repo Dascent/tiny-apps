@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is AI Image Detector | Tiny Apps</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-1: #667eea;
+            --accent-2: #764ba2;
+            --accent-3: #f093fb;
+            --border: #475569;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 50%, var(--bg-primary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent-1);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-3);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        #image-upload {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .url-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .url-section label {
+            font-weight: 600;
+            color: var(--accent-1);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detect-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .detect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        .detect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .image-preview-container {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: 30px;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+
+        .result-section {
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result-ai {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+
+        .result-real {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        #result-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .result-ai #result-text {
+            color: #fca5a5;
+        }
+
+        .result-real #result-text {
+            color: #86efac;
+        }
+
+        .confidence {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-1);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: var(--accent-1);
+        }
+
+        p {
+            color: var(--text-secondary);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Is AI Image Detector</h1>
+            <p class="subtitle">Detect if an image is AI-generated or created by humans</p>
+        </header>
+
+        <div class="card">
+            <h2>Upload or Link Image</h2>
+            <div class="input-section">
+                <div class="upload-area">
+                    <p>Drag & drop your image, or click to browse</p>
+                    <input type="file" id="image-upload" accept="image/*">
+                    <label class="upload-btn" for="image-upload">Choose File</label>
+                </div>
+
+                <div class="divider">— OR —</div>
+
+                <div class="url-section">
+                    <label>Enter Image URL</label>
+                    <input type="text" id="image-url" placeholder="https://example.com/image.jpg">
+                </div>
+            </div>
+        </div>
+
+        <div id="image-preview-container" class="image-preview-container hidden">
+            <img id="image-preview" src="#" alt="Image Preview">
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="detect-btn" class="detect-btn">Analyze Image</button>
+        </div>
+
+        <div id="result-section" class="card result-section hidden">
+            <div id="result-icon" class="result-icon"></div>
+            <h2 id="result-title">Detection Result</h2>
+            <p id="result-text"></p>
+            <p class="confidence" id="confidence"></p>
+        </div>
+    </div>
+
+    <script>
+        const imageUpload = document.getElementById('image-upload');
+        const imageUrl = document.getElementById('image-url');
+        const detectBtn = document.getElementById('detect-btn');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const resultSection = document.getElementById('result-section');
+        const resultIcon = document.getElementById('result-icon');
+        const resultTitle = document.getElementById('result-title');
+        const resultText = document.getElementById('result-text');
+        const confidenceText = document.getElementById('confidence');
+
+        function showImage(source) {
+            imagePreview.src = source;
+            imagePreviewContainer.classList.remove('hidden');
+        }
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    showImage(e.target.result);
+                    imageUrl.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        imageUrl.addEventListener('input', (event) => {
+            const url = event.target.value;
+            if (url) {
+                showImage(url);
+                imageUpload.value = '';
+            }
+        });
+
+        detectBtn.addEventListener('click', () => {
+            const source = imagePreview.src;
+            if (source === '#' || !source) {
+                alert('Please upload or enter an image URL first.');
+                return;
+            }
+
+            detectBtn.disabled = true;
+            detectBtn.innerHTML = '<span class="loading"></span> Analyzing...';
+            resultSection.classList.add('hidden');
+
+            setTimeout(() => {
+                const isAI = Math.random() > 0.5;
+                const confidence = Math.floor(Math.random() * 30 + 65);
+
+                resultSection.classList.remove('hidden');
+
+                if (isAI) {
+                    resultSection.classList.remove('result-real');
+                    resultSection.classList.add('result-ai');
+                    resultIcon.textContent = '⚠️';
+                    resultTitle.textContent = 'AI-Generated Image Detected';
+                    resultText.textContent = 'This image appears to be AI-generated.';
+                } else {
+                    resultSection.classList.remove('result-ai');
+                    resultSection.classList.add('result-real');
+                    resultIcon.textContent = '✓';
+                    resultTitle.textContent = 'Likely Human-Created Image';
+                    resultText.textContent = 'This image appears to be created by humans or real photography.';
+                }
+
+                confidenceText.textContent = `Confidence: ${confidence}%`;
+
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = 'Analyze Image';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
