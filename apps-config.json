@@ -1,0 +1,34 @@
+[
+  {
+    "id": "digital-greetings",
+    "name": "Digital Greetings",
+    "icon": "🎄",
+    "category": "Prompt Generator",
+    "description": "Generate AI prompts for creating stunning digital greeting cards with customizable themes, styles, and artistic techniques.",
+    "features": [
+      "5+ Holiday Themes",
+      "8 Visual Styles",
+      "Detailed & Lite Modes",
+      "Real-time Preview",
+      "One-Click Copy"
+    ],
+    "badge": "Popular",
+    "path": "prompt-apps/digital-greetings/index.html"
+  },
+  {
+    "id": "artistic-text-generator",
+    "name": "Artistic Text Generator",
+    "icon": "✨",
+    "category": "Typography Prompt",
+    "description": "Master the art of AI prompts for creating breathtaking artistic text and typography designs with multiple artistic styles.",
+    "features": [
+      "10 Artistic Styles",
+      "8 Mood Themes",
+      "8 Techniques",
+      "4 Quick Presets",
+      "Playful UI Design"
+    ],
+    "badge": "New",
+    "path": "prompt-apps/artistic-text-generator/index.html"
+  }
+]
