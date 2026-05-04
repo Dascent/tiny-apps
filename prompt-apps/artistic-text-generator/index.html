@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artistic Text Prompt Generator | 4Ai</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 15s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 400px 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.8s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .preset-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .preset-btn:active {
+            transform: translateY(0);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .output-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .output-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f1f5 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px dashed #667eea;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #333;
+            font-style: italic;
+            line-height: 1.8;
+            word-break: break-word;
+            position: relative;
+        }
+
+        .output-display.empty {
+            color: #999;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .output-header label {
+            margin-bottom: 0;
+        }
+
+        .char-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #52c41a 0%, #45a049 100%);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+            z-index: 100;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .example-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .example-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .preset-group {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="emoji">✨</span>Artistic Text Generator</h1>
+            <p>Master the art of AI prompts for stunning typography & text designs</p>
+        </header>
+
+        <div class="main-grid">
+            <aside class="card">
+                <div class="field-group">
+                    <label>📝 Your Text/Word</label>
+                    <input type="text" id="textInput" placeholder="e.g., DREAMS, SERENITY, LIGHT">
+                </div>
+
+                <div class="field-group">
+                    <label>🎨 Artistic Style</label>
+                    <select id="styleSelect">
+                        <option value="liquid mercury">Liquid Mercury</option>
+                        <option value="crystalline ice">Crystalline Ice</option>
+                        <option value="molten lava">Molten Lava</option>
+                        <option value="golden filigree">Golden Filigree</option>
+                        <option value="neon glow">Neon Glow</option>
+                        <option value="nature moss">Nature Moss</option>
+                        <option value="cosmic nebula">Cosmic Nebula</option>
+                        <option value="mirror reflection">Mirror Reflection</option>
+                        <option value="sand sculpture">Sand Sculpture</option>
+                        <option value="glass transparency">Glass Transparency</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label>🌈 Mood/Theme</label>
+                    <select id="moodSelect">
+                        <option value="mystical ethereal">Mystical Ethereal</option>
+                        <option value="vibrant energetic">Vibrant Energetic</option>
+                        <option value="calm serene">Calm Serene</option>
+                        <option value="dark moody">Dark Moody</option>
+                        <option value="luxurious elegant">Luxurious Elegant</option>
+                        <option value="chaotic wild">Chaotic Wild</option>
+                        <option value="minimalist clean">Minimalist Clean</option>
+                        <option value="surreal dreamlike">Surreal Dreamlike</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label>💫 Artistic Technique</label>
+                    <select id="techniqueSelect">
+                        <option value="3D sculpting">3D Sculpting</option>
+                        <option value="digital painting">Digital Painting</option>
+                        <option value="photography macro">Photography Macro</option>
+                        <option value="sculpture carved">Sculpture Carved</option>
+                        <option value="mixed media">Mixed Media</option>
+                        <option value="watercolor expressive">Watercolor Expressive</option>
+                        <option value="oil painting thick">Oil Painting Thick</option>
+                        <option value="conceptual abstract">Conceptual Abstract</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label>📐 Quick Presets</label>
+                    <div class="preset-group">
+                        <button class="preset-btn" onclick="applyPreset('MAGIC', 'neon glow', 'vibrant energetic', 'digital painting')">Magic</button>
+                        <button class="preset-btn" onclick="applyPreset('NATURE', 'nature moss', 'calm serene', 'photography macro')">Nature</button>
+                        <button class="preset-btn" onclick="applyPreset('LUXURY', 'golden filigree', 'luxurious elegant', '3D sculpting')">Luxury</button>
+                        <button class="preset-btn" onclick="applyPreset('COSMOS', 'cosmic nebula', 'mystical ethereal', 'conceptual abstract')">Cosmos</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="field-group">
+                        <label>🖼️ Resolution</label>
+                        <select id="resolutionSelect">
+                            <option value="8k ultra-detailed">8K Ultra</option>
+                            <option value="4k cinematic">4K Cinematic</option>
+                            <option value="high definition">High Def</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>🎬 Mode</label>
+                        <select id="modeSelect">
+                            <option value="detailed">Detailed</option>
+                            <option value="simple">Simple</option>
+                        </select>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="card output-container">
+                <div class="output-header">
+                    <label style="margin-bottom: 0; color: #667eea;">✨ Generated Prompt</label>
+                    <span id="charCount" class="char-count">0 chars</span>
+                </div>
+
+                <div id="outputDisplay" class="output-display empty">
+                    Enter your text and settings above...
+                </div>
+
+                <button onclick="copyPrompt()" class="copy-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                    Copy Prompt
+                </button>
+            </main>
+        </div>
+
+        <div class="example-section">
+            <h3>💡 Example Outputs</h3>
+            <div class="example-item">
+                <strong>Input:</strong> Text: "DREAMS" | Style: Cosmic Nebula | Mood: Surreal Dreamlike<br>
+                <strong>Output:</strong> The word "DREAMS" rendered as cosmic nebula, surreal dreamlike aesthetic. Swirling galactic colors, bioluminescent particles floating through ethereal text. 8k ultra-detailed, cinematic lighting, photorealistic macro details, cosmic horror elegance...
+            </div>
+            <div class="example-item">
+                <strong>Input:</strong> Text: "SERENITY" | Style: Golden Filigree | Mood: Luxurious Elegant<br>
+                <strong>Output:</strong> The word "SERENITY" crafted from golden filigree, luxurious elegant aesthetic. Intricate gold leaf patterns, ornate decorative flourishes. 8k ultra-detailed, professional studio lighting, hyper-vibrant color grading...
+            </div>
+            <div class="example-item">
+                <strong>Input:</strong> Text: "ELECTRIC" | Style: Neon Glow | Mood: Vibrant Energetic<br>
+                <strong>Output:</strong> The word "ELECTRIC" blazing with neon glow, vibrant energetic aesthetic. Electric cyan and magenta neon tubes forming letters, dynamic energy waves. 8k ultra-detailed, hyperrealistic neon lighting, explosive color...
+            </div>
+        </div>
+
+        <footer>
+            <p>🎨 Artistic Text Prompt Generator | Created by Gemini AI for 4Ai</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">Generate prompts that inspire AI image generators to create stunning artistic text designs</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const styleSelect = document.getElementById('styleSelect');
+        const moodSelect = document.getElementById('moodSelect');
+        const techniqueSelect = document.getElementById('techniqueSelect');
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        const modeSelect = document.getElementById('modeSelect');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const charCount = document.getElementById('charCount');
+        const toast = document.getElementById('toast');
+        const copyBtn = document.querySelector('.copy-btn');
+
+        function generate() {
+            const text = textInput.value.trim();
+            const style = styleSelect.value;
+            const mood = moodSelect.value;
+            const technique = techniqueSelect.value;
+            const resolution = resolutionSelect.value;
+            const mode = modeSelect.value;
+
+            if (!text) {
+                outputDisplay.textContent = 'Enter your text and settings above...';
+                outputDisplay.classList.add('empty');
+                charCount.textContent = '0 chars';
+                return;
+            }
+
+            let prompt = '';
+
+            if (mode === 'detailed') {
+                prompt = `The word "${text.toUpperCase()}" rendered in ${style} style, ${mood} aesthetic. The typography is a masterpiece of ${technique}, with extraordinary attention to detail. The letters flow with ${style} textures, glowing with ethereal luminescence. Background features complementary ${mood} elements. ${resolution}, professional studio lighting, photorealistic macro photography, hyper-vibrant color grading, symmetrical artistic composition, mind-bending depth, volumetric lighting, cinematic masterpiece quality, ultra high contrast, dramatic shadows and highlights.`;
+            } else {
+                prompt = `The word "${text.toUpperCase()}" in ${style} style with ${mood} aesthetic. ${technique} technique. Beautiful glowing typography, ${resolution}, cinematic, artistically stunning.`;
+            }
+
+            outputDisplay.textContent = prompt;
+            outputDisplay.classList.remove('empty');
+            charCount.textContent = `${prompt.length} chars`;
+        }
+
+        function applyPreset(text, style, mood, technique) {
+            textInput.value = text;
+            styleSelect.value = style;
+            moodSelect.value = mood;
+            techniqueSelect.value = technique;
+            generate();
+        }
+
+        function copyPrompt() {
+            const text = outputDisplay.textContent;
+            if (!text || text.includes('Enter your text')) {
+                showToast('No prompt to copy!');
+                return;
+            }
+
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+            
+            showToast('✨ Prompt copied to clipboard!');
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy Prompt';
+            }, 2000);
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        [textInput, styleSelect, moodSelect, techniqueSelect, resolutionSelect, modeSelect].forEach(el => {
+            el.addEventListener('change', generate);
+            el.addEventListener('input', generate);
+        });
+
+        generate();
+    </script>
+</body>
+</html>
